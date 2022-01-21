@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack --watch",
     "build": "webpack --mode=production",
-    "start": "npm run build && serve public"
+    "start": "serve public"
   },
   "keywords": [],
   "author": "",

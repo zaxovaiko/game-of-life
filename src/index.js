@@ -1,10 +1,11 @@
 import p5 from "p5";
 import config from "./config";
+import { glidernGun } from "./example/glider_gun";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
 const state = {
-  field: [],
+  field: [...glidernGun(config.CELL_SIZE)],
   isPaused: true,
 };
 
@@ -46,6 +47,7 @@ const sketch = function (p) {
     }
 
     for (const { x, y } of state.field) {
+      p.fill("lime");
       p.rect(x, y, config.CELL_SIZE);
     }
   }
@@ -56,45 +58,43 @@ const sketch = function (p) {
 
     // Get all possible neighbours to check
     for (const { x, y } of state.field) {
-      for (const first_row of getAllNeighbours(x, y)) {
-        for (const [a, b] of getAllNeighbours(...first_row)) {
-          if (cells.findIndex(([c, d]) => c === a && b === d) === -1) {
-            cells.push([a, b]);
-          }
+      cells.push([x, y]);
+      for (const neighbour of getAllNeighbours(x, y)) {
+        if (!cells.find((e) => "" + e === "" + neighbour)) {
+          cells.push([...neighbour]);
         }
       }
     }
 
-    // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-    // Any live cell with two or three live neighbours lives on to the next generation.
-    // Any live cell with more than three live neighbours dies, as if by overpopulation.
-    // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
     for (let i = 0; i < cells.length; i++) {
       const [x, y] = cells[i];
-      const n = getAllNeighbours(x, y);
-      const neighbours = n.filter((e) => getCellIndexByXY(...e) !== -1).length;
-      
+      const neighbours = getAllNeighbours(x, y).filter((e) => getCellIndexByXY(...e) !== -1).length;
       const cellIndex = getCellIndexByXY(x, y);
       const exists = cellIndex !== -1;
 
       if (!exists && neighbours === 3) {
         changes.push({ action: "create", x, y });
-      }
-      if (exists && (neighbours < 2 || neighbours > 3)) {
+      } else if (exists && (neighbours < 2 || neighbours > 3)) {
         changes.push({ i: cellIndex, action: "remove", x, y });
       }
     }
 
     // Remove cells
     const removeChanges = changes.filter((e) => e.action === "remove");
-    for (let i = 0; i < removeChanges.length; i++) {
-      state.field.splice(removeChanges[i].i - i, 1);
-    }
+    state.field = state.field.filter((_, i) => !removeChanges.find((e) => e.i === i));
 
     // Add new cells
     for (const { x, y } of changes.filter((e) => e.action === "create")) {
       state.field.push({ x, y });
     }
+
+    // Remove invisible cells
+    state.field = state.field.filter((e) => 
+      e.x >= 0 && 
+      e.y >= 0 && 
+      e.y <= height + config.CELL_SIZE && 
+      e.x <= width + config.CELL_SIZE
+    );
     drawPieces();
   };
 

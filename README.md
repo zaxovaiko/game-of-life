@@ -26,4 +26,4 @@ export default {
 
 ## Screenshots
 
-![screen](https://s10.gifyu.com/images/Screen-Recording-2022-01-21-at-12.54.42.gif)
+![screen](https://s10.gifyu.com/images/ezgif.com-gif-maker8eed2648e759f463.gif)

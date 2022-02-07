@@ -30,7 +30,13 @@ const sketch = function (p) {
       [x + config.CELL_SIZE, y - config.CELL_SIZE], // BR
       [x, y - config.CELL_SIZE], // B
       [x, y + config.CELL_SIZE], // T
-    ];
+    ].filter(([x, y]) => 
+      // Filter cells which are outside the field
+      x >= 0 && 
+      y >= 0 && 
+      y <= height + config.CELL_SIZE && 
+      x <= width + config.CELL_SIZE
+    );
   }
 
   function drawPieces() {
@@ -88,13 +94,6 @@ const sketch = function (p) {
       state.field.push({ x, y });
     }
 
-    // Remove invisible cells
-    state.field = state.field.filter((e) => 
-      e.x >= 0 && 
-      e.y >= 0 && 
-      e.y <= height + config.CELL_SIZE && 
-      e.x <= width + config.CELL_SIZE
-    );
     drawPieces();
   };
 
